@@ -1,0 +1,18 @@
+/*
+* Options styling
+*/
+
+.rew-shortcode { color: #2ea2cc; }
+.rew-html-notification-wrap .wp-editor-wrap { width: 80%; }
+.rew-mail-subject { width: 40%; }
+.rew-mail-sender { width: 30%; }
+.form-table .rew-note { color: #FF5A00; font-size: 12px; margin-top: 20px; }
+
+.rew-sepeartion { border-bottom: 1px solid #ddd; height: 40px; }
+
+@media only screen and (max-width: 959px) {
+
+    .rew-html-notification-wrap .wp-editor-wrap { width: 100%; }
+
+}
+
