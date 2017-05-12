@@ -11,20 +11,42 @@
 include plugin_dir_path( __FILE__ ) . '/admin/includes.php';
 
 //Loading style
-add_action( 'admin_init', 'rew_plugin_admin_styles' );
+add_action( 'admin_init', 'cnun_plugin_admin_styles' );
 
-function rew_plugin_admin_styles() {
-	wp_register_style( 'rewPluginStylesheet', plugins_url( 'css/style.css', __FILE__ ) );
-	wp_enqueue_style( 'rewPluginStylesheet' );
+function cnun_plugin_admin_styles() {
+	
+	wp_register_style( 'cnunPluginStylesheet', plugins_url( 'css/style.css', __FILE__ ) );
+	wp_enqueue_style( 'cnunPluginStylesheet' );
 }
 
 /**
  * Calling settings page
  */
-add_action( 'admin_menu', 'rew_plugin_menu' );
+add_action( 'admin_menu', 'cnun_plugin_menu' );
 
-function rew_plugin_menu() {
-	add_options_page( 'Custom New User Notification Options', 'Html User Notification', 'manage_options', 'rew-plugin-menu', 'rew_plugin_options' );
+function cnun_plugin_menu() {
+	
+	add_options_page( 'Custom New User Notification Options', 'Registration Email', 'manage_options', 'custom-new-user-notification', 'cnun_plugin_options' );
+}
+
+function cnun_get_email_info(){
+	
+	$blogname 	 = get_option('blogname');
+	$admin_email = get_option('admin_email');
+	
+	$email_info = [];
+	
+	$email_info['subject_user'] 		= get_option( 'cnun_user_mail_subject', '[' . $blogname . '] Your username and password info' );
+	$email_info['from_name_user'] 		= get_option( 'cnun_user_mail_sender_name', $blogname );
+	$email_info['from_email_user']		= get_option( 'cnun_user_mail_sender_mail', $admin_email );
+	$email_info['user_mail_content'] 	= get_option( 'cnun_user_mail_content', '<p>Username: [cnun-user-login]<br><br>To set your password, visit the following address:<br><br><a href="http://[cnun-reset-password-url]" data-wplink-url-error="true">[cnun-reset-password-url]</a><br></p>' );
+	
+	$email_info['subject_admin'] 		= get_option( 'cnun_admin_mail_subject', '[' . get_option('blogname') . '] New User Registration' );
+	$email_info['from_name_admin ']		= get_option( 'cnun_admin_mail_sender_name', $blogname );
+	$email_info['from_email_admin'] 	= get_option( 'cnun_admin_mail_sender_mail', $admin_email );
+	$email_info['admin_mail_content']	= get_option( 'cnun_admin_mail_content', '<p>New user registration on your site '.$blogname.':<br><br>Username: [cnun-user-login]<br><br>Email: [cnun-user-email]</p>' );
+	
+	return $email_info;
 }
 
 /*
@@ -38,117 +60,140 @@ if ( ! function_exists( 'wp_new_user_notification' ) ) {
 	 *
 	 * A new user registration notification is also sent to admin email.
 	 *
-	 * @param int    $user_id        User ID.
-	 * @param string $plaintext_pass Optional. The user's plaintext password. Default empty.
+	 * @since 2.0.0
+	 * @since 4.3.0 The `$plaintext_pass` parameter was changed to `$notify`.
+	 * @since 4.3.1 The `$plaintext_pass` parameter was deprecated. `$notify` added as a third parameter.
+	 * @since 4.6.0 The `$notify` parameter accepts 'user' for sending notification only to the user created.
+	 *
+	 * @global wpdb         $wpdb      WordPress database object for queries.
+	 * @global PasswordHash $wp_hasher Portable PHP password hashing framework instance.
+	 *
+	 * @param int    $user_id    User ID.
+	 * @param null   $deprecated Not used (argument deprecated).
+	 * @param string $notify     Optional. Type of notification that should happen. Accepts 'admin' or an empty
+	 *                           string (admin only), 'user', or 'both' (admin and user). Default empty.
 	 */
-	function wp_new_user_notification( $user_id, $plaintext_pass = '' ) {
+		 
+	function wp_new_user_notification( $user_id, $deprecated = null, $notify = '' ) {
+		
+		global $wpdb, $wp_hasher;
+		
 		$user = get_userdata( $user_id );
-		$subject_user = get_option( 'rew_user_mail_subject' );
-		$subject_admin = get_option( 'rew_admin_mail_subject' );
 
-		$from_name_user = get_option( 'rew_user_mail_sender_name' );
-		if ( empty( $from_name_user ) )
-			$from_name_user = 'WordPress';
-
-		$from_name_admin = get_option( 'rew_admin_mail_sender_name' );
-		if ( empty( $from_name_admin ) )
-			$from_name_admin = 'WordPress';
-
-		$from_email_user = get_option( 'rew_user_mail_sender_email' );
-		if ( empty( $from_email_user ) )
-			$from_email_user = rew_stripurl( get_bloginfo( 'url' ) );
-
-		$from_email_admin = get_option( 'rew_admin_mail_sender_email' );
-		if ( empty( $from_email_admin ) )
-			$from_email_admin = rew_stripurl( get_bloginfo( 'url' ) );
-
-		$headers_user = 'From: ' . $from_name_user . ' <' . $from_email_user . '>  ' . "\r\n";
-		$headers_admin = 'From: ' . $from_name_admin . ' <' . $from_email_admin . '>  ' . "\r\n";
+		// Generate something random for a password reset key.
+		
+		$key = wp_generate_password( 20, false );		
+			
+		// get email info
+		
+		$email_info = cnun_get_email_info();
 
 		//Shortcodes
-		$search = array( "[rew-display-name]", "[rew-user-login]", "[rew-user-password]", "[rew-user-email]" );
-		$replace = array( $user->display_name, $user->user_login, $plaintext_pass, $user->user_email );
-
-		// set content type to html
-		add_filter( 'wp_mail_content_type', 'wpmail_content_type' );
-
-		//for admin
-		ob_start();
-
-		echo rew_filter_post_content( get_option( 'rew_admin_mail_content' ) );
-
-		$message_admin_raw = ob_get_contents();
-		$message_admin = str_replace( $search, $replace, $message_admin_raw );
-
-		ob_end_clean();
-
-		@wp_mail( get_option( 'admin_email' ), $subject_admin, $message_admin, $headers_admin );
-
-		if ( empty( $plaintext_pass ) ) {
-			// remove html content type
-			remove_filter( 'wp_mail_content_type', 'wpmail_content_type' );
+		
+		$shortcodes = array( 
+		
+			"[cnun-display-name]", 
+			"[cnun-user-login]", 
+			"[cnun-user-email]" ,
+			"[cnun-reset-password-url]",
+			PHP_EOL,
+		);
+		
+		$data = array( 
+		
+			$user->display_name, 
+			$user->user_login, 
+			$user->user_email,
+			network_site_url('wp-login.php?action=rp&key='.$key.'&login=' . rawurlencode($user->user_login), 'login'), 
+			'<br/>',
+		);
+		
+		if ( $deprecated !== null ) {
+			
+			_deprecated_argument( __FUNCTION__, '4.3.1' );
+		}
+		
+		// The blogname option is escaped with esc_html on the way into the database in sanitize_option
+		// we want to reverse this for the plain text arena of emails.
+		
+		if( 'user' !== $notify ) {
+			
+			$switched_locale = switch_to_locale( get_locale() );
+			
+			$message  = str_replace( $shortcodes, $data, $email_info['admin_mail_content'] );
+			
+			$subject  = str_replace( $shortcodes, $data, $email_info['subject_admin'] );
+			
+			$headers = 'From: ' . $email_info['from_name_admin'] . ' <' . $email_info['from_email_admin']  . '>  ' . "\r\n";
+			
+			@wp_mail( get_option( 'admin_email' ), $subject, $message, $headers );
+			
+			if ( $switched_locale ) {
+				
+				restore_previous_locale();
+			}
+		}
+		
+		// `$deprecated was pre-4.3 `$plaintext_pass`. An empty `$plaintext_pass` didn't sent a user notification.
+		
+		if ( 'admin' === $notify || ( empty( $deprecated ) && empty( $notify ) ) ) {
+			
 			return;
 		}
-
-		//for user
-		ob_start();
-
-		echo rew_filter_post_content( get_option( 'rew_user_mail_content' ) );
-
-		$message_user_raw = ob_get_contents();
-		$message_user = str_replace( $search, $replace, $message_user_raw );
-
-		ob_end_clean();
-
-		wp_mail( $user->user_email, $subject_user, $message_user, $headers_user );
-
-		// remove html content type
-		remove_filter( 'wp_mail_content_type', 'wpmail_content_type' );
+		
+		/** This action is documented in wp-login.php */
+		
+		do_action( 'retrieve_password_key', $user->user_login, $key );
+		
+		// Now insert the key, hashed, into the DB.
+		
+		if ( empty( $wp_hasher ) ) {
+			
+			require_once ABSPATH . WPINC . '/class-phpass.php';
+			
+			$wp_hasher = new PasswordHash( 8, true );
+		}
+		
+		$hashed = time() . ':' . $wp_hasher->HashPassword( $key );
+		
+		$wpdb->update( $wpdb->users, array( 'user_activation_key' => $hashed ), array( 'user_login' => $user->user_login ) );
+		
+		$switched_locale = switch_to_locale( get_user_locale( $user ) );
+		
+		$message  = str_replace( $shortcodes, $data, $email_info['user_mail_content'] );
+		
+		$subject  = str_replace( $shortcodes, $data, $email_info['subject_user'] );
+		
+		$headers = 'From: ' . $email_info['from_name_user'] . ' <' . $email_info['from_email_user']  . '>  ' . "\r\n";
+		
+		@wp_mail($user->user_email, $subject, $message, $headers);
+		
+		if ( $switched_locale ) {
+			
+			restore_previous_locale();
+		}		
 	}
-
 }
 
-/**
- * wpmail_content_type
- * allow html emails
- * @return string
- */
-function wpmail_content_type() {
+// set email content type
 
+add_filter( 'wp_mail_content_type', function ( $content_type ) {
+	
 	return 'text/html';
-}
-
-/**
- * Apply wordpress post content filter on plain content. *
- */
-function rew_filter_post_content( $content = '' ) {
-	if ( ! empty( $content ) ) {
-		$content = apply_filters( 'the_content', $content );
-		$filtered_content = str_replace( ']]>', ']]&gt;', $content );
-		return $filtered_content;
-	} else {
-		return $content;
-	}
-}
-
-/**
- * Return domain name
- */
-function rew_stripurl( $url ) {
-
-	$urlParts = parse_url( $url );
-
-	return $urlParts[ 'host' ];
-}
+	
+} );
 
 /**
  * Settings link
  */
-function rew_add_action_links( $links ) {
+ 
+function cnun_add_action_links( $links ) {
+	
 	$mylinks = array(
-		'<a href="' . admin_url( 'options-general.php?page=rew-plugin-menu' ) . '">Settings</a>',
+		'<a href="' . admin_url( 'options-general.php?page=custom-new-user-notification' ) . '">Settings</a>',
 	);
+	
 	return array_merge( $links, $mylinks );
 }
 
-add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'rew_add_action_links' );
+add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'cnun_add_action_links' );

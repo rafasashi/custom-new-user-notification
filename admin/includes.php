@@ -4,99 +4,137 @@
 /**
  * Plugin options markup
  */
-function rew_plugin_options() {
-	?>
-	<div class="wrap rew-html-notification-wrap">
-		<h2><?php _e( 'Html User Notification', 'rews' ); ?></h2>
-		<h4><?php _e( 'Shortcode\'s', 'rews' ); ?></h4>
-		<ol>
-			<li class="rew-shortcode">User Display name : [rew-display-name]</li>
-			<li class="rew-shortcode">Username : [rew-user-login]</li>
-			<li class="rew-shortcode">Password : [rew-user-password]</li>
-			<li class="rew-shortcode">User email : [rew-user-email]</li>
-		</ol>
-		<hr />
-		<form method="post" action="options.php">
+function cnun_plugin_options() {
 
-			<?php settings_fields( 'rew-settings-group' ); ?>
-			<?php do_settings_sections( 'rew-settings-group' ); ?>
+	// get variables
+	
+	$blogname 	 = get_option('blogname');
+	$admin_email = get_option('admin_email');
+	
+	$email_info = cnun_get_email_info();
 
-			<table class="form-table">
-				<tr valign="top">
+	// output content
+	
+	echo'<div class="wrap cnun-html-notification-wrap">';
+		
+		echo'<h2>' . __( 'Custom User Notification', 'custom-new-user-notification' ) . '</h2>';
+		
+		echo'<h4>' . __( 'Shortcode\'s', 'custom-new-user-notification' ) . '</h4>';
+		
+		echo'<ul>';
+			echo'<li class="cnun-shortcode">User name 	: [cnun-display-name]</li>';
+			echo'<li class="cnun-shortcode">User login 	: [cnun-user-login]</li>';
+			//echo'<li class="cnun-shortcode">Password 	: [cnun-user-password]</li>';
+			echo'<li class="cnun-shortcode">User email 	: [cnun-user-email]</li>';
+			echo'<li class="cnun-shortcode">Password url: [cnun-reset-password-url]</li>';
+		echo'</ul>';
+		
+		echo'<hr />';
+		
+		echo'<form method="post" action="options.php">';
 
-					<th scope="row"><?php _e( 'User Mail Content', 'rews' ); ?></th>
-					<td><?php wp_editor( get_option( 'rew_user_mail_content' ), 'rew_user_mail_content', '' ); ?></td>
+			settings_fields( 'cnun-settings-group' );
+			do_settings_sections( 'cnun-settings-group' );
 
-				</tr>
-				<tr valign="top">
+			echo'<table class="form-table">';
+			
+				// user email setup
+			
+				echo'<tr valign="top">';
 
-					<th scope="row"><?php _e( 'User Mail Subject', 'rews' ); ?></th>
-					<td><input class="rew-mail-subject" type="text" name="rew_user_mail_subject" value="<?php echo get_option( 'rew_user_mail_subject' ); ?>" /></td>
+					echo'<th scope="row">' . __( 'User Mail Subject', 'custom-new-user-notification' ) . '</th>';
+					echo'<td><input class="cnun-mail-subject" type="text" name="cnun_user_mail_subject" value="' .  $email_info['subject_user'] . '" /></td>';
 
-				</tr>
-				<tr valign="top">
+				echo'</tr>';
+				echo'<tr valign="top">';
 
-					<th scope="row"><?php _e( 'User From Name', 'rews' ); ?></th>
-					<td><input class="rew-mail-sender" type="text" name="rew_user_mail_sender_name" placeholder="yourname" value="<?php echo get_option( 'rew_user_mail_sender_name' ); ?>" /></td>
+					echo'<th scope="row">' . __( 'User From Name', 'custom-new-user-notification' ) . '</th>';
+					echo'<td><input class="cnun-mail-sender" type="text" name="cnun_user_mail_sender_name" placeholder="yourname" value="' .  $email_info['from_name_user'] . '" /></td>';
 
-				</tr>
-				<tr valign="top">
+				echo'</tr>';
+				echo'<tr valign="top">';
 
-					<th scope="row"><?php _e( 'User From Email', 'rews' ); ?></th>
-					<td>
-						<input class="rew-mail-sender" type="text" name="rew_user_mail_sender_email" placeholder="wordpress@yoursite.com" value="<?php echo get_option( 'rew_user_mail_sender_email' ); ?>" />
-						<p class="rew-note"><?php _e( 'You can specify the from name and from email. If left blank  default will be used.', 'rew' ); ?></p>
-					</td>
+					echo'<th scope="row">' . __( 'User From Email', 'custom-new-user-notification' ) . '</th>';
+					echo'<td>';
+						echo'<input class="cnun-mail-sender" type="text" name="cnun_user_mail_sender_mail" placeholder="wordpress@yoursite.com" value="' .  $email_info['from_email_user'] . '" />';
+					echo'</td>';
 
-				</tr>
-				<tr class="rew-sepeartion" valign="top" ></tr>
-				<tr valign="top">
+				echo'</tr>';			
+			
+				echo'<tr valign="top">';
 
-					<th scope="row"><?php _e( 'Admin Mail Content', 'rews' ); ?></th>
-					<td><?php wp_editor( get_option( 'rew_admin_mail_content' ), 'rew_admin_mail_content', '' ); ?></td>
+					echo'<th scope="row">' . __( 'User Mail Content', 'custom-new-user-notification' ) . '</th>';
+					echo'<td>';
+					
+					wp_editor( $email_info['user_mail_content'], 'cnun_user_mail_content', '' );
+					
+					echo'</td>';
 
-				</tr>
-				<tr valign="top">
+				echo'</tr>';
 
-					<th scope="row"><?php _e( 'Admin Mail Subject', 'rews' ); ?></th>
-					<td><input class="rew-mail-subject" type="text" name="rew_admin_mail_subject" value="<?php echo get_option( 'rew_admin_mail_subject' ); ?>" /></td>
+				// separator
+				
+				echo'<tr class="cnun-sepeartion" valign="top" ></tr>';
+				
+				// admin email setup
+				
+				echo'<tr valign="top">';
 
-				</tr>
-				<tr valign="top">
+					echo'<th scope="row">' . __( 'Admin Mail Subject', 'custom-new-user-notification' ) . '</th>';
+					echo'<td><input class="cnun-mail-subject" type="text" name="cnun_admin_mail_subject" value="' .  $email_info['subject_admin'] . '" /></td>';
 
-					<th scope="row"><?php _e( 'Admin From Name', 'rews' ); ?></th>
-					<td><input class="rew-mail-sender" type="text" name="rew_admin_mail_sender_name" placeholder="yourname" value="<?php echo get_option( 'rew_admin_mail_sender_name' ); ?>" /></td>
+				echo'</tr>';
+				echo'<tr valign="top">';
 
-				</tr>
-				<tr valign="top">
+					echo'<th scope="row">' . __( 'Admin From Name', 'custom-new-user-notification' ) . '</th>';
+					echo'<td><input class="cnun-mail-sender" type="text" name="cnun_admin_mail_sender_name" placeholder="yourname" value="' .  $email_info['from_name_admin '] . '" /></td>';
 
-					<th scope="row"><?php _e( 'Admin From Email', 'rews' ); ?></th>
-					<td>
-						<input class="rew-mail-sender" type="text" name="rew_admin_mail_sender_email" placeholder="wordpress@yoursite.com" value="<?php echo get_option( 'rew_admin_mail_sender_email' ); ?>" />
-						<p class="rew-note"><?php _e( 'You can specify the from name and from email. If left blank  default will be used.', 'rew' ); ?></p>
-					</td>
+				echo'</tr>';
+				echo'<tr valign="top">';
 
-				</tr>
-			</table>
+					echo'<th scope="row">' . __( 'Admin From Email', 'custom-new-user-notification' ) . '</th>';
+					echo'<td>';
+						echo'<input class="cnun-mail-sender" type="text" name="cnun_admin_mail_sender_mail" placeholder="wordpress@yoursite.com" value="' .  $email_info['from_email_admin'] . '" />';
+					echo'</td>';
 
-			<?php submit_button(); ?>
-		</form>
+				echo'</tr>';				
+				
+				echo'<tr valign="top">';
 
-	</div>
-	<?php
+					echo'<th scope="row">' . __( 'Admin Mail Content', 'custom-new-user-notification' ) . '</th>';
+					echo'<td>';
+					
+					wp_editor( $email_info['admin_mail_content'], 'cnun_admin_mail_content', '' );
+					
+					echo'</td>';
+
+				echo'</tr>';
+				
+			echo'</table>';
+
+			submit_button();
+			 
+		echo'</form>';
+
+	echo'</div>';
 }
 
 //call register settings function
-add_action( 'admin_init', 'rew_register_mysettings' );
+add_action( 'admin_init', 'cnun_register_mysettings' );
 
-function rew_register_mysettings() {
+function cnun_register_mysettings() {
+	
 	//register our settings
-	register_setting( 'rew-settings-group', 'rew_user_mail_content' );
-	register_setting( 'rew-settings-group', 'rew_admin_mail_content' );
-	register_setting( 'rew-settings-group', 'rew_user_mail_subject' );
-	register_setting( 'rew-settings-group', 'rew_admin_mail_subject' );
-	register_setting( 'rew-settings-group', 'rew_user_mail_sender_email' );
-	register_setting( 'rew-settings-group', 'rew_admin_mail_sender_email' );
-	register_setting( 'rew-settings-group', 'rew_user_mail_sender_name' );
-	register_setting( 'rew-settings-group', 'rew_admin_mail_sender_name' );
+	
+	register_setting( 'cnun-settings-group', 'cnun_user_mail_content' );
+	register_setting( 'cnun-settings-group', 'cnun_admin_mail_content' );
+	
+	register_setting( 'cnun-settings-group', 'cnun_user_mail_subject' );
+	register_setting( 'cnun-settings-group', 'cnun_admin_mail_subject' );
+	
+	register_setting( 'cnun-settings-group', 'cnun_user_mail_sender_email' );
+	register_setting( 'cnun-settings-group', 'cnun_admin_mail_sender_email' );
+	
+	register_setting( 'cnun-settings-group', 'cnun_user_mail_sender_name' );
+	register_setting( 'cnun-settings-group', 'cnun_admin_mail_sender_name' );
 }
