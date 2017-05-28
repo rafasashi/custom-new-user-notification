@@ -4,7 +4,7 @@
  * Plugin Name: Custom New User Notification
  * Plugin URI: http://github.com/rafasashi
  * Description: This plugin allows you to customize the email sent on a new user registration.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: Rafasashi
  * Author URI: http://github.com/rafasashi
  */
