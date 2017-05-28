@@ -78,6 +78,12 @@ if ( ! function_exists( 'wp_new_user_notification' ) ) {
 		
 		global $wpdb, $wp_hasher;
 		
+		// set email content type
+
+		add_filter( 'wp_mail_content_type', 'cnun_mail_content_type' );
+		
+		/// get user
+		
 		$user = get_userdata( $user_id );
 
 		// Generate something random for a password reset key.
@@ -171,17 +177,14 @@ if ( ! function_exists( 'wp_new_user_notification' ) ) {
 		if ( $switched_locale ) {
 			
 			restore_previous_locale();
-		}		
+		}
 	}
 }
 
-// set email content type
-
-add_filter( 'wp_mail_content_type', function ( $content_type ) {
+function cnun_mail_content_type( $content_type ) {
 	
 	return 'text/html';
-	
-} );
+}
 
 /**
  * Settings link
