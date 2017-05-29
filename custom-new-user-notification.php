@@ -2,12 +2,36 @@
 
 /**
  * Plugin Name: Custom New User Notification
- * Plugin URI: http://github.com/rafasashi
+ * Plugin URI: https://github.com/rafasashi/custom-new-user-notification
  * Description: This plugin allows you to customize the email sent on a new user registration.
  * Version: 1.1.0
  * Author: Rafasashi
  * Author URI: http://github.com/rafasashi
  */
+ 
+
+/**
+* Minimum version required
+*
+*/
+if ( get_bloginfo('version') < 4.3 ) return;
+
+/**
+* Add donation link
+*
+*/
+
+add_filter('plugin_row_meta', function ( $links, $file ){
+	
+	if ( strpos( $file, basename( __FILE__ ) ) !== false ) {
+		$new_links = array( '<a href="https://www.paypal.me/recuweb" target="_blank">' . __( 'Donate', 'cleanlogin' ) . '</a>' );
+		$links = array_merge( $links, $new_links );
+	}
+	
+	return $links;
+	
+}, 10, 2);
+ 
 include plugin_dir_path( __FILE__ ) . '/admin/includes.php';
 
 //Loading style

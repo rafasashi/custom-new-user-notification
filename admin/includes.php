@@ -132,8 +132,8 @@ function cnun_register_mysettings() {
 	register_setting( 'cnun-settings-group', 'cnun_user_mail_subject' );
 	register_setting( 'cnun-settings-group', 'cnun_admin_mail_subject' );
 	
-	register_setting( 'cnun-settings-group', 'cnun_user_mail_sender_email' );
-	register_setting( 'cnun-settings-group', 'cnun_admin_mail_sender_email' );
+	register_setting( 'cnun-settings-group', 'cnun_user_mail_sender_mail' );
+	register_setting( 'cnun-settings-group', 'cnun_admin_mail_sender_mail' );
 	
 	register_setting( 'cnun-settings-group', 'cnun_user_mail_sender_name' );
 	register_setting( 'cnun-settings-group', 'cnun_admin_mail_sender_name' );
