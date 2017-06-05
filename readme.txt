@@ -20,6 +20,9 @@ This plugin allows you to customize the email sent on a new user registration.
 
 == Changelog ==
 
+= 1.1.1 =
+* Reset Password url fixed
+
 = 1.1.0 =
 * Email content type
 
