@@ -2,8 +2,8 @@
 Contributors: rafasashi
 Tags: new user notification, registration email, welcome mail, new user, user registration
 Requires at least: 4.6
-Tested up to: 4.7
-Stable tag: 1.1.1
+Tested up to: 4.8
+Stable tag: 1.1.2
 
 Custom New User Notification
 
@@ -19,6 +19,9 @@ This plugin allows you to customize the email sent on a new user registration.
 
 
 == Changelog ==
+
+= 1.1.2 =
+* Add user manually fixed
 
 = 1.1.1 =
 * Reset Password url fixed

@@ -4,7 +4,7 @@
  * Plugin Name: Custom New User Notification
  * Plugin URI: https://github.com/rafasashi/custom-new-user-notification
  * Description: This plugin allows you to customize the email sent on a new user registration.
- * Version: 1.1.1
+ * Version: 1.1.2
  * Author: Rafasashi
  * Author URI: http://github.com/rafasashi
  */
@@ -66,7 +66,7 @@ function cnun_get_email_info(){
 	$email_info['user_mail_content'] 	= get_option( 'cnun_user_mail_content', '<p>Username: [cnun-user-login]<br><br>To set your password, visit the following address:<br><br><a href="[cnun-reset-password-url]" data-wplink-url-error="true">[cnun-reset-password-url]</a><br></p>' );
 	
 	$email_info['subject_admin'] 		= get_option( 'cnun_admin_mail_subject', '[' . get_option('blogname') . '] New User Registration' );
-	$email_info['from_name_admin ']		= get_option( 'cnun_admin_mail_sender_name', $blogname );
+	$email_info['from_name_admin']		= get_option( 'cnun_admin_mail_sender_name', $blogname );
 	$email_info['from_email_admin'] 	= get_option( 'cnun_admin_mail_sender_mail', $admin_email );
 	$email_info['admin_mail_content']	= get_option( 'cnun_admin_mail_content', '<p>New user registration on your site '.$blogname.':<br><br>Username: [cnun-user-login]<br><br>Email: [cnun-user-email]</p>' );
 	
