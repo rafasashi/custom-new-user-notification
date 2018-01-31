@@ -87,7 +87,7 @@ function cnun_plugin_options() {
 				echo'<tr valign="top">';
 
 					echo'<th scope="row">' . __( 'Admin From Name', 'custom-new-user-notification' ) . '</th>';
-					echo'<td><input class="cnun-mail-sender" type="text" name="cnun_admin_mail_sender_name" placeholder="yourname" value="' .  $email_info['from_name_admin '] . '" /></td>';
+					echo'<td><input class="cnun-mail-sender" type="text" name="cnun_admin_mail_sender_name" placeholder="yourname" value="' .  $email_info['from_name_admin'] . '" /></td>';
 
 				echo'</tr>';
 				echo'<tr valign="top">';
