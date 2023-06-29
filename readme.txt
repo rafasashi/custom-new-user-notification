@@ -2,8 +2,8 @@
 Contributors: rafasashi
 Tags: new user notification, registration email, welcome mail, new user, user registration
 Requires at least: 4.6
-Tested up to: 4.9
-Stable tag: 1.1.4
+Tested up to: 6.2
+Stable tag: 1.2.0
 
 Custom New User Notification
 
